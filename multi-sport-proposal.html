@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Multi‑Sport Tournament Platform – Client Proposal</title>
+  <style>
+    :root{
+      --brand-primary:#1F6FEB; /* change to your brand color */
+      --brand-accent:#FF7A59;  /* change to your accent color */
+      --ink:#0f172a;
+      --muted:#475569;
+      --bg:#ffffff;
+      --border:#e2e8f0;
+    }
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Noto Sans",sans-serif}
+    .page{max-width:920px;margin:0 auto;padding:40px 24px}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:24px}
+    .logo{width:40px;height:40px;object-fit:contain;border-radius:6px;border:1px solid var(--border);background:#fff}
+    .title{font-size:28px;line-height:1.2;margin:0}
+    .subtitle{color:var(--muted);margin:4px 0 0 0}
+    .pill{display:inline-block;padding:2px 10px;border-radius:999px;border:1px solid var(--border);color:var(--muted);font-size:12px}
+    h2{margin-top:28px;color:var(--ink);border-bottom:2px solid var(--border);padding-bottom:6px}
+    h3{margin-top:20px;color:var(--ink)}
+    p{margin:10px 0}
+    ul{margin:8px 0 8px 22px}
+    code, pre{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+    .callout{border-left:4px solid var(--brand-primary);background:#f8fafc;padding:12px 14px;margin:12px 0}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .card{border:1px solid var(--border);border-radius:10px;padding:14px}
+    table{border-collapse:collapse;width:100%;margin:12px 0}
+    th,td{border:1px solid var(--border);padding:8px 10px;text-align:left}
+    th{background:#f1f5f9}
+    .mermaid{border:1px solid var(--border);border-radius:8px;padding:10px;background:#fff}
+    .footer{margin-top:24px;color:var(--muted);font-size:13px}
+    .brand{color:var(--brand-primary)}
+    @media print{
+      .no-print{display:none !important}
+      .page{padding:24px}
+      a{color:inherit;text-decoration:none}
+      h2{page-break-before:always}
+      header{page-break-before:auto}
+      .mermaid{page-break-inside:avoid}
+    }
+  </style>
+  <!-- Mermaid for diagrams (loaded from CDN in the viewer's browser) -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true, theme: 'default' });</script>
+  <!-- Optional: replace src with your logo path (e.g., assets/logo.png) -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <meta name="description" content="Client proposal for a plugin-based multi-sport tournament platform with zero-code sport onboarding." />
+</head>
+<body>
+  <div class="page">
+    <header>
+      <img class="logo" alt="Logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect width='100%25' height='100%25' rx='12' ry='12' fill='%23ffffff' stroke='%23e2e8f0'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' font-family='Arial' font-size='22' fill='%231F6FEB'%3EMS%3C/text%3E%3C/svg%3E" />
+      <div>
+        <h1 class="title">Multi‑Sport Tournament Platform — Proposal</h1>
+        <p class="subtitle">Plugin architecture • Zero‑code sports • Backward compatible</p>
+      </div>
+      <div style="margin-left:auto"><span class="pill">Version 1.0</span></div>
+    </header>
+
+    <div class="callout">
+      <strong>Executive Summary</strong>
+      <ul>
+        <li>Objective: Add and configure any sport <em>without deployments</em> via an Admin Console, while preserving all football data.</li>
+        <li>Approach: Plugin ecosystem + Generic Score Engine + Dynamic Rule Engine + Admin UI.</li>
+        <li>Outcome: Faster sport onboarding, consistent APIs, real‑time scoring, analytics, and maintainability.</li>
+        <li>Delivery: ~5–6 weeks or core platform, football plugin, and one new sport.</li>
+      </ul>
+    </div>
+
+    <h2>Business Outcomes</h2>
+    <ul>
+      <li>Time‑to‑market: Add new sports in hours through Admin instead of engineering sprints.</li>
+      <li>Lower cost of change: Standard interfaces and rules eliminate bespoke rewrites.</li>
+      <li>Operational reliability: Versioned rules, validation, and controlled rollout reduce incidents.</li>
+      <li>Future‑proofing: Extensible architecture accommodates complex formats and scoring models.</li>
+    </ul>
+
+    <h2>High‑Level Architecture</h2>
+    <div class="mermaid">
+      flowchart LR
+        subgraph Admin[Admin Interface]
+          A1[Sport Configuration]
+          A2[Plugin Management]
+          A3[Rule Editor]
+          A4[Analytics]
+        end
+
+        subgraph Core[Core Platform]
+          C1[Plugin Manager]
+          C2[Generic Score Engine]
+          C3[Dynamic Rule Engine]
+          C4[Tournament Service]
+          C5[Match Service]
+          C6[API Gateway]
+        end
+
+        subgraph Plugins[Sport Plugins]
+          P1[Football]
+          P2[Badminton]
+          P3[Table Tennis]
+          P4[Pickleball]
+          Pn[Future Sports]
+        end
+
+        subgraph Data[Data Platform]
+          D1[Sports]
+          D2[Plugins]
+          D3[Tournaments]
+          D4[Matches]
+          D5[Rankings]
+        end
+
+        A1 --> C1
+        A2 --> C1
+        A3 --> C3
+        A4 --> D3
+
+        C1 --> Plugins
+        C2 --> Plugins
+        C3 --> D1
+        C4 --> D3
+        C5 --> D4
+        C6 --> C4
+        C6 --> C5
+
+        Plugins --> D1
+    </div>
+    <p class="muted">Deployment note: Real‑time channels and runtime plugin loading are best hosted on containerized infrastructure (e.g., Cloud Run). Cloud Functions continue to serve event processing where applicable.</p>
+
+    <h2>Zero‑Code User Flows</h2>
+    <h3>Add a New Sport</h3>
+    <div class="mermaid">
+      sequenceDiagram
+        participant Admin as Admin User
+        participant UI as Admin Console
+        participant PM as Plugin Manager
+        participant RE as Rule Engine
+        participant DB as Data Platform
+        participant API as Public API
+
+        Admin->>UI: Open Create Sport
+        UI->>Admin: Sport template + rule presets
+        Admin->>UI: Configure scoring, formats, validation
+        UI->>PM: Submit for validation
+        PM->>RE: Validate rules + schema
+        RE-->>PM: Valid
+        PM->>DB: Save Sport + Plugin metadata (v1)
+        PM->>API: Publish sport to catalog
+        API-->>Admin: Sport available for tournaments
+    </div>
+
+    <h3>Run a Tournament</h3>
+    <div class="mermaid">
+      sequenceDiagram
+        participant Org as Organizer
+        participant UI as Admin Console
+        participant API as Public API
+        participant TS as Tournament Service
+        participant MS as Match Service
+        participant DB as Data Platform
+
+        Org->>UI: Create Tournament (select sport)
+        UI->>API: Create request
+        API->>TS: Initialize tournament
+        TS->>DB: Persist tournament
+        TS->>MS: Generate fixtures via sport rules
+        MS->>DB: Create matches
+        API-->>Org: Tournament ready with schedule
+    </div>
+
+    <h3>Live Scoring</h3>
+    <div class="mermaid">
+      sequenceDiagram
+        participant Scorer as Scorer App
+        participant API as Public API
+        participant MS as Match Service
+        participant SE as Score Engine
+        participant DB as Data Platform
+        participant RT as Realtime Channel
+
+        Scorer->>API: Submit scoring event
+        API->>MS: Route by sport
+        MS->>SE: Apply via sport plugin
+        SE-->>MS: Updated score state
+        MS->>DB: Persist
+        MS->>RT: Broadcast update to viewers
+        API-->>Scorer: Acknowledged
+    </div>
+
+    <h2>Data Model (Conceptual)</h2>
+    <ul>
+      <li><strong>Sports</strong>: metadata, plugin reference, rule versions, validation schemas, display formats.</li>
+      <li><strong>Plugins</strong>: versioned entries, status (draft/validated/published), audit trail.</li>
+      <li><strong>Tournaments</strong>: organizer, format, participants, schedule constraints, applied rule set.</li>
+      <li><strong>Matches</strong>: participants, status, score state, timeline of events.</li>
+      <li><strong>Rankings</strong>: aggregated standings and tie‑break outcomes per tournament.</li>
+    </ul>
+    <div class="card">
+      <strong>Indexing & Scalability</strong>
+      <ul>
+        <li>Index by sport, tournament, and status; avoid hot documents; shard write‑heavy paths.</li>
+        <li>Prefer append‑only event logs for scoring timelines; aggregate asynchronously.</li>
+      </ul>
+    </div>
+
+    <h2>Backward Compatibility & Migration</h2>
+    <ul>
+      <li><strong>Football Parity First</strong>: Football becomes the first managed plugin; existing data remains valid.</li>
+      <li><strong>Non‑Breaking Fields</strong>: Introduce <code>sportKey</code>, <code>scoreState</code>, and <code>ruleVersion</code> alongside legacy fields.</li>
+      <li><strong>Automated Backfill</strong>: One‑time job to populate new fields for historical matches and tournaments.</li>
+      <li><strong>Rollout Guardrails</strong>: Feature flags and canary rollouts per tournament and per sport.</li>
+    </ul>
+
+    <h2>Security, Governance, and Quality</h2>
+    <ul>
+      <li><strong>Plugin Validation</strong>: Static checks, schema validation, and controlled publishing workflow.</li>
+      <li><strong>Access Control</strong>: Role‑based access for Admin (configure), Operator (run events), Viewer (analytics).</li>
+      <li><strong>Auditing</strong>: Versioning, change logs, and publish history for every sport and rule set.</li>
+      <li><strong>Observability</strong>: Metrics for scoring latency, event throughput, rule violations, and error budgets.</li>
+    </ul>
+
+    <h2>Delivery Plan</h2>
+    <table>
+      <thead><tr><th>Phase</th><th>Scope</th><th>Duration</th></tr></thead>
+      <tbody>
+        <tr><td>1 — Plugin Infrastructure</td><td>Plugin Manager, Registry, lifecycle (draft → validated → published); validation pipeline</td><td>6 days</td></tr>
+        <tr><td>2 — Generic Score Engine</td><td>Scoring primitives, sport plugin contracts; display formatting</td><td>4 days</td></tr>
+        <tr><td>3 — Dynamic Rule Engine</td><td>JSON rules, validation, overrides, versioning</td><td>3 days</td></tr>
+        <tr><td>4 — Data Platform</td><td>Collections, indexes, migration utilities</td><td>3 days</td></tr>
+        <tr><td>5 — Admin Interface</td><td>Sport configuration, plugin management, basic analytics</td><td>2.5 days</td></tr>
+        <tr><td>6 — API Integration</td><td>Public endpoints, backward compatibility mode, publish/unpublish flows</td><td>2.5 days</td></tr>
+        <tr><td>7 — Testing & Migration</td><td>Test suites, performance checks, football backfill, rollout</td><td>5 days</td></tr>
+        <tr><td><strong>Total</strong></td><td>Core + football plugin + one new sport</td><td><strong>~5–6 weeks</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Additional Sports</h3>
+        <ul>
+          <li>Simple scoring (Table Tennis, Pickleball): 3–5 days per sport</li>
+          <li>Complex scoring (Tennis variants, Cricket): 1–2 weeks per sport</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Deliverables</h3>
+        <ul>
+          <li>Multi‑sport core platform with plugin infrastructure</li>
+          <li>Football as managed plugin with full parity</li>
+          <li>One additional sport published (e.g., Badminton)</li>
+          <li>Admin Console for sport configuration and publishing</li>
+          <li>Public APIs for tournaments, matches, scoring, rankings</li>
+          <li>Migration with documented rollback and runbook</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Notes</strong>
+      <ul>
+        <li>Includes a 4‑week warranty for bug fixes post‑go‑live; new sports are out of scope.</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>
