@@ -33,6 +33,9 @@
     th{background:#f1f5f9}
     .mermaid{border:1px solid var(--border);border-radius:8px;padding:10px;background:#fff}
     .footer{margin-top:24px;color:var(--muted);font-size:13px}
+    .local-nav{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0 24px;padding:10px 16px;border:1px solid var(--border);border-radius:999px;background:#f8fafc}
+    .local-nav a{color:var(--brand-primary);text-decoration:none;font-weight:600}
+    .local-nav a:hover{text-decoration:underline}
     .brand{color:var(--brand-primary)}
 
     /* Responsive foundations */
@@ -90,6 +93,9 @@
       </div>
       <div style="margin-left:auto"><span class="pill">Version 1.0</span></div>
     </header>
+    <nav class="local-nav">
+      <a href="#incremental-multi-sport-plan">Incremental Plan</a>
+    </nav>
 
     <div class="callout">
       <strong>Executive Summary</strong>
@@ -295,6 +301,143 @@
         <li>Includes a 4‑week warranty for bug fixes post‑go‑live; new sports are out of scope.</li>
       </ul>
     </div>
+
+    <section id="incremental-multi-sport-plan">
+      <h2>Incremental Multi-Sport Enablement Plan (Existing Architecture)</h2>
+      <p>This document outlines what it would take to keep the current football-oriented architecture and extend it sport-by-sport. The goal is to add Badminton, Pickleball, and Table Tennis support by reusing and adapting the existing GameAPI functions, interfaces, and services without a full platform refactor.</p>
+      <hr />
+      <h3>1. Overview</h3>
+      <ul>
+        <li><strong>Approach</strong>: Duplicate and adapt current football flows (player, match, tournament, team, fixture functions) for each new sport, sharing common utilities where possible.</li>
+        <li><strong>Scope</strong>: Enable scheduling, match management, scoring, leaderboards, and tournament tracking for Badminton, Pickleball, and Table Tennis within the existing Firebase/Cloud Functions setup.</li>
+        <li><strong>Expectation</strong>: Faster start than a full re-architecture, but code duplication and maintenance complexity will increase with every added sport.</li>
+      </ul>
+      <hr />
+      <h3>2. Significant Changes Required</h3>
+      <h4>Core Adjustments (shared across new sports)</h4>
+      <ul>
+        <li><strong>Sport Metadata</strong>: Add <code>sportType</code> to relevant Firestore documents (tournaments, matches, teams) so functions can branch by sport.</li>
+        <li><strong>Validation Layer</strong>: Introduce sport-specific validation branches in the current request handlers (e.g., participant counts, scoring inputs).</li>
+        <li><strong>Score Model</strong>: Generalize existing score objects to accept non-football fields (sets, games, rally points) without breaking current clients.</li>
+        <li><strong>Leaderboards &amp; Stats</strong>: Extend stats aggregation logic to compute wins, losses, and point differentials per sport.</li>
+      </ul>
+      <h4>Sport-Specific Implementations</h4>
+      <ul>
+        <li><strong>Badminton</strong>
+          <ul>
+            <li>Best-of-3 sets (21 points), deuce rules (two-point lead, cap at 30).</li>
+            <li>Singles/doubles participant handling.</li>
+            <li>Match event logging (rallies, service changes) if needed for analytics.</li>
+          </ul>
+        </li>
+        <li><strong>Pickleball</strong>
+          <ul>
+            <li>Rally scoring rules (best-of-3 to 11 or 15), service rotation, doubles support.</li>
+            <li>Optional consolation brackets if currently supported for football.</li>
+          </ul>
+        </li>
+        <li><strong>Table Tennis</strong>
+          <ul>
+            <li>Best-of-5 or 7 games to 11, two-point lead requirement.</li>
+            <li>Side/serve switching after every 2 points (optional for live tracking).</li>
+          </ul>
+        </li>
+      </ul>
+      <p>For each sport, the existing football flows must be duplicated or refactored to accommodate the new scoring timeline, match completion logic, and ranking updates.</p>
+      <hr />
+      <h3>3. New/Updated Functions &amp; Scripts</h3>
+      <p>Following the current folder structure (<code>src/functions/gameApi</code>), the work adds or updates:</p>
+      <ul>
+        <li><strong>Common</strong>
+          <ul>
+            <li>Update <code>player.function.ts</code>, <code>team.function.ts</code>, <code>tournament.function.ts</code>, <code>match.function.ts</code>, <code>fixture.function.ts</code> to branch by <code>sportType</code>.</li>
+            <li>Shared utility modules (e.g., <code>match.utils.ts</code>, <code>leaderboard.utils.ts</code>) to accept new scoring schemas.</li>
+          </ul>
+        </li>
+        <li><strong>Badminton</strong>
+          <ul>
+            <li><code>match.badminton.ts</code> (scoring + completion logic)</li>
+            <li><code>tournament.badminton.ts</code> (format presets, fixture generation)</li>
+            <li><code>leaderboard.badminton.ts</code> (points, tie-breakers)</li>
+          </ul>
+        </li>
+        <li><strong>Pickleball</strong>
+          <ul>
+            <li><code>match.pickleball.ts</code></li>
+            <li><code>tournament.pickleball.ts</code></li>
+            <li><code>leaderboard.pickleball.ts</code></li>
+          </ul>
+        </li>
+        <li><strong>Table Tennis</strong>
+          <ul>
+            <li><code>match.tabletennis.ts</code></li>
+            <li><code>tournament.tabletennis.ts</code></li>
+            <li><code>leaderboard.tabletennis.ts</code></li>
+          </ul>
+        </li>
+      </ul>
+      <div class="callout">
+        <strong>Note:</strong> If we stay strictly within the current architecture, these may live alongside football logic inside the existing files (guarded by <code>if (sportType === 'badminton')</code>), which increases file size and reduces clarity. Creating sport-specific helper files as above keeps duplication manageable while still reusing the same deployment pipeline.
+      </div>
+      <hr />
+      <h3>4. Delivery Timeline (Estimate)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Phase</th>
+            <th>Scope</th>
+            <th>Duration</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Phase 0</strong> – Discovery &amp; Setup</td>
+            <td>Audit existing football functions, identify reusable utilities, update schemas with <code>sportType</code></td>
+            <td>1 week</td>
+          </tr>
+          <tr>
+            <td><strong>Phase 1</strong> – Badminton Integration</td>
+            <td>Scoring logic, fixture adjustments, leaderboard updates, tests</td>
+            <td>1.5 weeks</td>
+          </tr>
+          <tr>
+            <td><strong>Phase 2</strong> – Pickleball Integration</td>
+            <td>Adaptation similar to above, handle doubles emphasis</td>
+            <td>1.5 weeks</td>
+          </tr>
+          <tr>
+            <td><strong>Phase 3</strong> – Table Tennis Integration</td>
+            <td>Multi-game scoring, service rules, leaderboard</td>
+            <td>1.5 weeks</td>
+          </tr>
+          <tr>
+            <td><strong>Phase 4</strong> – End-to-end tests, documentation, rollout</td>
+            <td>Final QA, documentation updates, production rollout</td>
+            <td>1 week</td>
+          </tr>
+          <tr>
+            <td><strong>Total</strong></td>
+            <td>~6.5 weeks (32–35 working days)</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+      <hr />
+      <h3>5. Challenges &amp; Risks</h3>
+      <ul>
+        <li><strong>Code Duplication</strong>: Maintaining separate branches for each sport within the same functions makes future changes error-prone.</li>
+        <li><strong>Scalability</strong>: Onboarding new sports later requires repeating the same manual flow, compounding maintenance overhead.</li>
+        <li><strong>Testing Complexity</strong>: Each sport introduces unique edge cases (deuce scenarios, tie-breaks) that must be covered in tests.</li>
+        <li><strong>Data Consistency</strong>: Ensuring existing football stats remain intact while adding new fields for other sports requires careful migrations.</li>
+      </ul>
+      <hr />
+      <h3>7. Recommendation</h3>
+      <ul>
+        <li>This incremental path is viable if timelines are tight and a larger refactor is off the table.</li>
+        <li>Expect higher maintenance costs and slower future scalability versus a plugin/hexagonal redesign.</li>
+        <li>Consider planning a platform refactor later if more sports or customizable formats are expected.</li>
+      </ul>
+    </section>
   </div>
 </body>
 </html>
